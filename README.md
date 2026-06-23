@@ -398,7 +398,7 @@ The following commands create API endpoints at `http://localhost:8000/v1`:
 ## Agent Capability Evaluation (NEED TO RENAME)
 
 In addition to releasing this agent model, We also open-source an evaluation framework for assessing agentic models across core capabilities, 
-including tool use and multi-step reasoning. The framework is available at: **[InternAgentEval](https://github.com/InternScience/InternAgentEval)**.
+including tool use and multi-step reasoning. The evaluation code is included in this repository under [`evaluation/`](./evaluation), and is also available at: **[InternAgentEval](https://github.com/InternScience/InternAgentEval)**.
 
 We use this framework to evaluate the released model under a standardized and reproducible setting. 
 Specifically, the model is tested on a set of agent-oriented tasks that require it to understand user goals, 
