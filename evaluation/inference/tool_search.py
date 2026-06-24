@@ -41,49 +41,65 @@ class Search(BaseTool):
         }
 
         if contains_chinese_basic(query):
-            payload = json.dumps({
+            base_payload = {
                 "q": query,
                 "location": "China",
                 "gl": "cn",
                 "hl": "zh-cn"
-            })
+            }
         else:
-            payload = json.dumps({
+            base_payload = {
                 "q": query,
                 "location": "United States",
                 "gl": "us",
                 "hl": "en"
-            })
+            }
 
-        for i in range(5):
-            try:
-                response = requests.request("POST", "https://google.serper.dev/search", headers=headers, data=payload)
-                results = response.json()
+        all_organic = []
+        answer_box_info = ""
+
+        for page_num in range(1, 6):
+            payload = json.dumps({**base_payload, "page": page_num})
+
+            results = None
+            for attempt in range(5):
+                try:
+                    response = requests.request("POST", "https://google.serper.dev/search", headers=headers, data=payload)
+                    results = response.json()
+                    break
+                except Exception as e:
+                    print(e)
+                    if attempt == 4:
+                        if page_num == 1:
+                            return f"Google search Timeout, return None, Please try again later."
+                        results = None
+                    continue
+
+            if results is None or "organic" not in results:
                 break
-            except Exception as e:
-                print(e)
-                if i == 4:
-                    return f"Google search Timeout, return None, Please try again later."
-                continue
 
-        try:
-            if "organic" not in results:
-                raise Exception(f"No results found for query: '{query}'. Use a less specific query.")
-
-            answer_box_info = ""
-            if "answerBox" in results:
+            if page_num == 1 and "answerBox" in results:
                 answer = results["answerBox"]
                 title = answer.get("title", "Answer")
                 snippet = answer.get("snippet", "N/A").replace("\n", " ")
                 answer_box_info = f"## {title}\n{snippet}\n\n"
 
+            page_organic = results["organic"]
+            all_organic.extend(page_organic)
+
+            if len(page_organic) < 10:
+                break
+
+        try:
+            if not all_organic:
+                raise Exception(f"No results found for query: '{query}'. Use a less specific query.")
+
             organic_info = ""
-            if "organic" in results:
-                for i, item in enumerate(results["organic"][:50], 1):
-                    title = item.get("title", "N/A")
-                    link = item.get("link", "#")
-                    snippet = item.get("snippet", "N/A").replace("\n", " ")
-                    organic_info += f"{i}. **[{title}]({link})**\n   - {snippet}\n"
+            for i, item in enumerate(all_organic[:50], 1):
+                title = item.get("title", "N/A")
+                link = item.get("link", "#")
+                snippet = item.get("snippet", "N/A").replace("\n", " ")
+                organic_info += f"{i}. **[{title}]({link})**\n   - {snippet}\n"
 
             content = f"# Search Results for: '{query}'\n\n {answer_box_info} ## Web Results\n\n" + organic_info
             return content
