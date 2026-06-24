@@ -34,6 +34,10 @@ fi
 
 OUTPUT_PATH=${OUTPUT_PATH:-./results}
 
+# Resolve to absolute paths so sub-scripts work regardless of their CWD
+[[ "$DATASET_PATH" != /* ]] && DATASET_PATH="$(pwd)/$DATASET_PATH"
+[[ "$OUTPUT_PATH"  != /* ]] && OUTPUT_PATH="$(pwd)/$OUTPUT_PATH"
+
 echo "=========================================="
 echo "Inference + Evaluation"
 echo "=========================================="
