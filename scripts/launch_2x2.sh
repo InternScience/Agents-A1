@@ -2,7 +2,9 @@
 set -euo pipefail
 
 
-SERVER_PATH="$(pwd)/server_$(date +%Y%m%d_%H%M%S)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SERVER_PATH="${REPO_DIR}/server_$(date +%Y%m%d_%H%M%S)"
 echo "SERVER_PATH=${SERVER_PATH}"
 LOGGING_PATH="${SERVER_PATH}/logs"
 mkdir -p "$LOGGING_PATH"
