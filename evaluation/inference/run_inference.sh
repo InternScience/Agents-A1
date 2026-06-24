@@ -23,6 +23,9 @@ if [ -f "$ENV_FILE" ]; then
     set +a
 fi
 
+# Resolve OUTPUT_PATH to absolute (relative paths in .env are relative to evaluation/, not inference/)
+[[ "${OUTPUT_PATH}" != /* ]] && OUTPUT_PATH="$(cd "$SCRIPT_DIR/.." && pwd)/${OUTPUT_PATH}"
+
 MODEL_NAME=$1
 MODEL_PATH=$2
 DATASET_PATH=$3
