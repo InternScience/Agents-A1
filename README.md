@@ -384,6 +384,8 @@ The following commands create API endpoints at `http://localhost:8000/v1`:
     --language-model-only
   ```
 
+  For multi-GPU deployment, e.g., serving the model on 4 GPUs, please refer to the example launch script in the [`scripts/`](./scripts) directory.
+
 ### Recommended Sampling Parameters
 
 For the best generation quality, we recommend the following sampling parameters:
