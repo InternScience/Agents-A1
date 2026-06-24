@@ -29,7 +29,6 @@ for (( i=0; i<4; i=i+2 )); do
         --tool-call-parser qwen3_coder \
         --enable-auto-tool-choice \
         --reasoning-parser qwen3 \
-        --no-enable-return-routed-experts \
         --trust-remote-code > "$worker_log" 2>&1 &
 
 done
