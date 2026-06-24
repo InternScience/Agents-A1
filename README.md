@@ -1,25 +1,14 @@
 # Agents-A1
 
-<div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: nowrap;">
-  <img src="./figures/hf-logo.svg" width="16" height="16" alt="Hugging Face">
-  <a href="https://huggingface.co/InternScience/Agents-A1"><b>Hugging Face</b></a>
-  <span style="color: #ccc;">|</span>
-  
-  <img src="./figures/github-logo.svg" width="16" height="16" alt="GitHub">
-  <a href="https://github.com/InternScience/InternAgentEval"><b>Github</b></a>
-  <span style="color: #ccc;">|</span>
-  
-  <img src="./figures/modelscope-logo.svg" width="16" height="16" alt="Model Scope">
-  <a href="#"><b>ModelScope</b></a>
-  <span style="color: #ccc;">|</span>
+[![MODELS](https://img.shields.io/badge/Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/InternScience/Agents-A1)
+[![GITHUB](https://img.shields.io/badge/Github-24292F?style=for-the-badge&logo=github&logoColor=white)](https://github.com/InternScience/Agents-A1)
+[![Blog](https://img.shields.io/badge/Blog-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://xxx/)
+[![Paper](https://img.shields.io/badge/Paper-red?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/pdf/xxx)
 
-  <img src="./figures/24px.svg" width="16" height="16" alt="Technical Report" style="filter: invert(0.5);">
-  <a href="#"><b>Technical Report</b></a>
-</div>
 
-**Agents‑A1** is a 35B Mixture‑of‑Experts agentic designed to tackle **long‑horizon, multi‑domain** tasks that demand **tool use, multi‑step reasoning, and autonomous decision‑making**. Instead of training on plain instruction‑response data, we used a knowledge‑action graph that captures actions, observations, and verification signals—turning the whole agent trajectory into something the model can actually learn from. Our three‑stage recipe (broad fine‑tuning, domain expert teachers, and multi‑teacher distillation) helps this 35B model punch well above its weight: it matches or beats 1T‑parameter giants like Kimi‑K2.6 and DeepSeek‑V4‑pro on SEAL‑0 (56.4), IFBench (80.6), HiPhO (46.4), FrontierScience‑Olympiad (79.0), and MolBench‑Bind (56.8), while staying competitive on SciCode (44.3), HLE (47.6), and BrowseComp (75.5). Whether you need coding, science reasoning, web navigation, or complex tool use, Agents‑A1 delivers strong, balanced performance. We hope this serves as a practical blueprint for building compact agents that can rival much larger models on hard, real‑world tasks.
+**Agents‑A1** is a 35B Mixture‑of‑Experts agentic model designed to scale heterogeneous agentic abilities across multiple domains including **Long‑horizon Search, Engineering, Scientific Research, Instruction Following, and Tool-calling**. Rather than relying solely on flat instruction–response corpora, **Agents‑A1** is trained with the assistance of a domain-grounded knowledge-action graph infrastructure that jointly constructs actions, observations, and verifier outcomes, turning the agent's process into a trainable target. Based on this, **Agents‑A1** presents a three-stage training paradigm for building scalable general-purpose agentic model. First, we perform full-domain supervised fine-tuning to align the base model with broad agentic behaviors. Second, we train domain-level teacher models to capture specialized expertise in each domain. Third, we propose multi-teacher multi-domain on-policy distillation with heterogeneity-aware optimization to improve knowledge transfer efficiency across different domains.
 
-![Agents-A1 Benchmark Overview](./figures/a1_benchmarks_altair_grid.svg)
+![Agents-A1 Benchmark Overview](./assets/a1_benchmarks_altair_grid.svg)
 
 ## Highlights
 
@@ -32,7 +21,7 @@ We welcome developers and enterprises to integrate and try Agents-A1 and share t
 
 ## Performance
 
-We evaluate Agents-A1 in real-world agentic and research-oriented workflows across six directions — long-horizon search, engineering tasks, scientific research, instruction following, general agentic tasks, and scientific agentic tasks. Despite operating in the ~35B model class, Agents-A1 delivers highly competitive performance against frontier-scale systems such as GPT-5.5, DeepSeek-V4-pro, and Kimi-K2.6. It achieves overall SOTA results on several challenging benchmarks, including Seal0, HiPhO, FrontierScience-Olympiad, FrontierScience-Research, IFBench, and IFEval, while also ranking as the best among comparable models on a broad range of tasks such as BrowseComp, XBench-DS-2510, GAIA, SciCode, HLE with tools, VitaBench, MatTools, and MolBench-bind. These results show that Agents-A1 combines strong long-horizon search ability, robust scientific reasoning, and reliable instruction following, establishing it as a highly capable and efficient agentic model that narrows the gap with much larger frontier models.
+We evaluate Agents-A1 in real-world agentic and research-oriented workflows across six directions — long-horizon search, engineering tasks, scientific research, instruction following, general agentic tasks, and scientific agentic tasks. Despite operating in the ~35B model class, Agents-A1 delivers highly competitive performance against frontier-scale systems such as GPT-5.5, DeepSeek-V4-pro, and Kimi-K2.6. It achieves overall SOTA results on several challenging benchmarks, including Seal-0 (56.4), HiPhO (46.4), FrontierScience-Olympiad (79.0), FrontierScience-Research (40.00), IFBench (80.6), and IFEval (94.8), while also ranking as the best among comparable models on a broad range of tasks such as BrowseComp (75.5), XBench-DS-2510 (86.0), GAIA (96.0), SciCode (44.3), HLE with tools (47.6), and MolBench-bind (56.8). These results show that Agents-A1 combines strong long-horizon search ability, robust scientific reasoning, and reliable instruction following, establishing it as a highly capable and efficient agentic model that narrows the gap with much larger frontier models.
 
 <p>
 🥇 Overall SOTA &nbsp;&nbsp;
@@ -395,20 +384,14 @@ The following commands create API endpoints at `http://localhost:8000/v1`:
     --language-model-only
   ```
 
-## Agent Capability Evaluation (NEED TO RENAME)
+## Agent Capability Evaluation
 
-In addition to releasing this agent model, We also open-source an evaluation framework for assessing agentic models across core capabilities, 
-including tool use and multi-step reasoning. The evaluation code is included in this repository under [`evaluation/`](./evaluation), and is also available at: **[InternAgentEval](https://github.com/InternScience/InternAgentEval)**.
+To provide the community with a unified agent evaluation codebase for fair comparison, we have also open-sourced an evaluation framework for assessing agentic models across core capabilities, including tool use and multi-step reasoning. The evaluation code is included in the [`evaluation/`](./evaluation) of this repository.
 
 We use this framework to evaluate the released model under a standardized and reproducible setting. 
-Specifically, the model is tested on a set of agent-oriented tasks that require it to understand user goals, 
-decompose complex instructions, interact with tools or environments when necessary, and produce final results. 
-The evaluation results reported in this model card are generated using the open-source framework above, 
-so that users can reproduce the experiments, compare other models under the same protocol, and further extend the benchmark for new agent scenarios.
+Specifically, the model is tested on a set of agent-oriented tasks that require it to understand user goals, decompose complex instructions, interact with tools or environments when necessary, and produce final results. The evaluation results reported in [Model Card](https://huggingface.co/InternScience/Agents-A1) are generated using the open-source framework above, so that users can reproduce the experiments, compare other models under the same protocol, and further extend the benchmark for new agent scenarios. (**Note that:** To ensure a fair comparison, we report the benchmark results from their original technical reports. If a model does not report the corresponding benchmark results, we evaluate it using the same evaluation protocol as our model.)
 
-For detailed evaluation scripts, task definitions, metrics, and reproduction instructions, please refer to the framework repository.
-
-
+For detailed evaluation scripts, task definitions, metrics, and reproduction instructions, please refer to the evaluation codebase.
 
 ## Citation
 
