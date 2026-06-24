@@ -383,8 +383,8 @@ The following commands create API endpoints at `http://localhost:8000/v1`:
     --reasoning-parser qwen3 \
     --language-model-only
   ```
-
-  For multi-GPU deployment, e.g., serving the model on 4 GPUs, please refer to the example launch script in the [`scripts/`](./scripts) directory.
+> [!Note]
+> For multi-GPU deployment, e.g., serving the model on 4 GPUs, please refer to the example launch script in the [`scripts/`](./scripts) directory.
 
 ### Recommended Sampling Parameters
 
