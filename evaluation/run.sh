@@ -56,14 +56,6 @@ dataset_name=$(basename "$(dirname "$DATASET_PATH")")
 eval_dir="${OUTPUT_PATH}/${model_name}/${dataset_name}"
 
 if [ -f "${eval_dir}/iter1.jsonl" ]; then
-    # Copy iter1 to iter2/iter3 for single-rollout evaluation
-    ROLLOUT_COUNT=${ROLLOUT_COUNT:-1}
-    if [ "$ROLLOUT_COUNT" -eq 1 ]; then
-        cp "${eval_dir}/iter1.jsonl" "${eval_dir}/iter2.jsonl"
-        cp "${eval_dir}/iter1.jsonl" "${eval_dir}/iter3.jsonl"
-        echo "Single rollout: copied iter1.jsonl to iter2.jsonl and iter3.jsonl"
-    fi
-
     echo ""
     echo ">>> Step 2: Running evaluation..."
 
@@ -78,10 +70,11 @@ if [ -f "${eval_dir}/iter1.jsonl" ]; then
         *gaia*)                           EVAL_DATASET="gaia" ;;
     esac
 
-    cd evaluation
+    cd judger
     python evaluate.py \
         --input-folder "${eval_dir}/" \
         --dataset "$EVAL_DATASET" \
+        --rollout-count "${ROLLOUT_COUNT:-1}" \
         2>&1 | tee "${eval_dir}/evaluation_results.txt"
     cd "$SCRIPT_DIR"
 

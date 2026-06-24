@@ -3,18 +3,16 @@ import concurrent.futures
 import json
 import os
 import traceback
-from pathlib import Path
 
 from tqdm import tqdm
 
 from aggregation import (
     aggregate_results,
-    calculate_avg_pass_at_3,
+    calculate_avg_pass_at_n,
     calculate_best_pass_at_1,
     calculate_pass_at_k,
 )
 from data_loading import process_single_round
-
 from judge import call_llm_judge, is_correct_judgement, resolve_judge
 from run_stats import (
     aggregate_statistics,
@@ -32,25 +30,26 @@ def main():
             "xbench-deepsearch", "seal-0", "hle"
         ]
     )
+    parser.add_argument("--rollout-count", type=int, default=3, help="Number of rollout iterations")
     args = parser.parse_args()
 
     dataset = args.dataset
+    rollout_count = args.rollout_count
     judge_model, judge_prompt = resolve_judge(dataset)
 
     print(f"Using {dataset} judge prompt ...")
     print(f"Judge prompt:\n {judge_prompt}")
     print(f"Judge model:\n {judge_model}")
 
-    round1_file = os.path.join(args.input_folder, "iter1.jsonl")
-    round2_file = os.path.join(args.input_folder, "iter2.jsonl")
-    round3_file = os.path.join(args.input_folder, "iter3.jsonl")
-    for file in [round1_file, round2_file, round3_file]:
-        assert os.path.exists(file), f"Prediction {file} not found, three  rounds are required "
+    round_names = [f"round{i}" for i in range(1, rollout_count + 1)]
+    round_files = [os.path.join(args.input_folder, f"iter{i}.jsonl") for i in range(1, rollout_count + 1)]
+
+    for file in round_files:
+        assert os.path.exists(file), f"Prediction {file} not found, {rollout_count} rounds are required"
 
     round_items = {
-        "round1": process_single_round(round1_file),
-        "round2": process_single_round(round2_file),
-        "round3": process_single_round(round3_file)
+        round_names[i]: process_single_round(round_files[i])
+        for i in range(rollout_count)
     }
 
     round_results = {}
@@ -71,13 +70,15 @@ def main():
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc=f"Evaluating {round_name}"):
                 round_results[round_name].append(future.result())
 
-    for round_name in ["round1", "round2", "round3"]:
-        input_file = {"round1": round1_file, "round2": round2_file, "round3": round3_file}[round_name]
+    for i, round_name in enumerate(round_names):
+        input_file = round_files[i]
         scored_file = input_file.replace(".jsonl", "_scored.jsonl")
         original_items = round_items[round_name]
 
-        sorted_results = sorted(round_results[round_name],
-                                key=lambda x: original_items.index(next(item for item in original_items if item["question"] == x["question"])))
+        sorted_results = sorted(
+            round_results[round_name],
+            key=lambda x: original_items.index(next(item for item in original_items if item["question"] == x["question"]))
+        )
 
         with open(scored_file, 'w', encoding='utf-8') as f:
             for orig_item, scored_result in zip(original_items, sorted_results):
@@ -91,24 +92,28 @@ def main():
                 scored_item.update(orig_item)
                 f.write(json.dumps(scored_item, ensure_ascii=False) + '\n')
 
-    aggr_results = aggregate_results(round_results["round1"], round_results["round2"], round_results["round3"])
+    aggr_results = aggregate_results(round_results)
 
-    pass_at_3 = calculate_pass_at_k(aggr_results, k=3)
+    pass_at_n = calculate_pass_at_k(aggr_results, k=rollout_count)
     best_pass_at_1 = calculate_best_pass_at_1(aggr_results)
-    avg_pass_at_3 = calculate_avg_pass_at_3(aggr_results)
+    avg_pass_at_n = calculate_avg_pass_at_n(aggr_results)
 
     round_performance = {
-        f"Round{i}_Pass@1": round(sum(1 for r in round_results[f"round{i}"] if is_correct_judgement(r["judgement"])) / len(round_results[f"round{i}"]) * 100, 2)
-        for i in [1, 2, 3]
+        f"Round{i}_Pass@1": round(
+            sum(1 for r in round_results[f"round{i}"] if is_correct_judgement(r["judgement"])) / len(round_results[f"round{i}"]) * 100,
+            2
+        )
+        for i in range(1, rollout_count + 1)
     }
 
     print(f"===========")
-    print(f"Avg. Pass@3 {avg_pass_at_3}%")
+    print(f"Avg. Pass@{rollout_count} {avg_pass_at_n}%")
     print(f"Best Pass@1 {best_pass_at_1}%")
-    print(f"Pass@3 {pass_at_3}%")
-    print(f"Pass@1 Round 1: {round_performance['Round1_Pass@1']}%  Round 2: {round_performance['Round2_Pass@1']}%  Round 3: {round_performance['Round3_Pass@1']}% \n")
+    print(f"Pass@{rollout_count} {pass_at_n}%")
+    round_perf_str = "  ".join(f"Round {i}: {round_performance[f'Round{i}_Pass@1']}%" for i in range(1, rollout_count + 1))
+    print(f"Pass@1 {round_perf_str}\n")
 
-    aggr_statistics = aggregate_statistics(round1_file, round2_file, round3_file)
+    aggr_statistics = aggregate_statistics(round_files)
     print(f"# Invalid {aggr_statistics['num_invalid']}  # Extra Length {aggr_statistics['extra_length']}")
     print(f"Avg. Action {aggr_statistics['avg_action']:.2f}  Avg. Visit Action {aggr_statistics['avg_visit_action']:.2f}  Avg. Search Action {aggr_statistics['avg_search_action']:.2f}  Avg. Other Action {aggr_statistics['avg_other_action']:.2f}")
     print(f"Avg. Answer Length {aggr_statistics['avg_ans_length']:.2f}  Avg. Thinking Length {aggr_statistics['avg_think_length']:.2f}")
@@ -128,15 +133,11 @@ def main():
 
     overall_eval_dict = {
         "dataset": dataset,
-        "files": {
-            "round1": round1_file,
-            "round2": round2_file,
-            "round3": round3_file
-        },
+        "files": {round_names[i]: round_files[i] for i in range(rollout_count)},
         "overall": {
-            "avg_pass_at_3": avg_pass_at_3,
+            f"avg_pass_at_{rollout_count}": avg_pass_at_n,
             "best_pass_at_1": best_pass_at_1,
-            "pass_at_3": pass_at_3
+            f"pass_at_{rollout_count}": pass_at_n
         },
         "individual": round_performance,
         "statistics": {**aggr_statistics, **enhanced_statistics}

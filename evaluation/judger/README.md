@@ -1,4 +1,4 @@
-# Evaluation
+# Judger
 
 Evaluate inference results using LLM-based judging.
 
@@ -11,21 +11,21 @@ export JUDGE_API_BASE=https://api.openai.com/v1
 # Optional: override the default judge selected for each dataset
 export JUDGE_MODEL_NAME=gpt-4o
 
-# Run evaluation
+# Run evaluation (default: 3 rollouts)
 python evaluate.py \
     --input-folder /path/to/results/ \
     --dataset gaia
+
+# Run evaluation with a custom rollout count
+python evaluate.py \
+    --input-folder /path/to/results/ \
+    --dataset gaia \
+    --rollout-count 5
 ```
 
 ## Requirements
 
-The input folder must contain 3 iteration files: `iter1.jsonl`, `iter2.jsonl`, `iter3.jsonl`.
-
-For single-rollout evaluation, copy iter1 to iter2 and iter3:
-```bash
-cp iter1.jsonl iter2.jsonl
-cp iter1.jsonl iter3.jsonl
-```
+The input folder must contain one `iterN.jsonl` file per rollout (e.g. `iter1.jsonl`, `iter2.jsonl`, `iter3.jsonl` for `--rollout-count 3`). Pass `--rollout-count 1` for single-rollout evaluation.
 
 ## Supported Datasets
 
@@ -42,8 +42,8 @@ Override the judge model by setting `JUDGE_MODEL_NAME` in `../.env`.
 ## Output
 
 The script outputs:
-- **Avg. Pass@3**: Average accuracy across 3 rollouts
+- **Avg. Pass@N**: Average accuracy across N rollouts
 - **Best Pass@1**: Best single-rollout accuracy
-- **Pass@3**: Whether any of 3 rollouts got the correct answer
+- **Pass@N**: Whether any of N rollouts got the correct answer
 - **Statistics**: Tool usage, token counts, termination patterns
 - Scored JSONL files (`iter1_scored.jsonl`, etc.)

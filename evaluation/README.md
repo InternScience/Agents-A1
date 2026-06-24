@@ -107,20 +107,25 @@ export JUDGE_API_BASE=https://api.openai.com/v1
 # Optional: override the default judge selected for each dataset
 export JUDGE_MODEL_NAME=gpt-4o
 
-cd evaluation
+cd judger
 python evaluate.py \
     --input-folder /path/to/results/ \
     --dataset gaia
 ```
 
-Evaluation requires 3 iteration files (`iter1.jsonl`, `iter2.jsonl`, `iter3.jsonl`). For single-rollout evaluation:
+Evaluation requires one `iterN.jsonl` file per rollout. Pass `--rollout-count N` to match the number of rollouts you ran:
 ```bash
-cp iter1.jsonl iter2.jsonl && cp iter1.jsonl iter3.jsonl
+python evaluate.py \
+    --input-folder /path/to/results/ \
+    --dataset gaia \
+    --rollout-count 3
 ```
+
+Pass `--rollout-count 1` for single-rollout evaluation.
 
 Override the default judge model by setting `JUDGE_MODEL_NAME` in `.env`.
 
-See [evaluation/README.md](./evaluation/README.md) for more details.
+See [judger/README.md](./judger/README.md) for more details.
 
 ## Architecture
 

@@ -22,24 +22,27 @@ def count_tokens_with_tokenizer(text, tokenizer):
         return len(text) // 4
 
 
-def aggregate_statistics(round1_file, round2_file, round3_file):
-    round1_stats = single_round_statistics(round1_file)
-    round2_stats = single_round_statistics(round2_file)
-    round3_stats = single_round_statistics(round3_file)
+def aggregate_statistics(round_files):
+    """Aggregate statistics across N rounds.
 
-    keys = round1_stats.keys()
+    Args:
+        round_files: list of file paths, one per round
+    """
+    all_round_stats = [single_round_statistics(f) for f in round_files]
+    n = len(all_round_stats)
+
+    keys = all_round_stats[0].keys()
     avg_stats = {}
     for key in keys:
-        if isinstance(round1_stats[key], dict):
+        if isinstance(all_round_stats[0][key], dict):
             avg_stats[key] = {}
-            all_keys = set(round1_stats[key].keys()) | set(round2_stats[key].keys()) | set(round3_stats[key].keys())
+            all_keys = set().union(*[s[key].keys() for s in all_round_stats])
             for nested_key in all_keys:
-                val1 = round1_stats[key].get(nested_key, 0)
-                val2 = round2_stats[key].get(nested_key, 0)
-                val3 = round3_stats[key].get(nested_key, 0)
-                avg_stats[key][nested_key] = round((val1 + val2 + val3) / 3, 3)
+                avg_stats[key][nested_key] = round(
+                    sum(s[key].get(nested_key, 0) for s in all_round_stats) / n, 3
+                )
         else:
-            avg_stats[key] = round((round1_stats[key] + round2_stats[key] + round3_stats[key]) / 3, 3)
+            avg_stats[key] = round(sum(s[key] for s in all_round_stats) / n, 3)
 
     return avg_stats
 
@@ -210,18 +213,14 @@ def calculate_enhanced_statistics(round_results, round_items):
     correct_tool_calls = []
     correct_assistant_tokens = []
 
-    for round_name in ["round1", "round2", "round3"]:
+    for round_name in round_results.keys():
         results = round_results[round_name]
         items = round_items[round_name]
 
         for result in results:
             if not is_correct_judgement(result["judgement"]):
                 continue
-            try:
-                matching_item = [item for item in items if item['messages'][1]['content'] == result['question']]
-            except Exception:
-                items = [item for item in items if len(item['messages']) > 0]
-                matching_item = [item for item in items if item['messages'][1]['content'] == result['question']]
+            matching_item = [item for item in items if item['question'] == result['question']]
             if not matching_item:
                 continue
             item = matching_item[0]
