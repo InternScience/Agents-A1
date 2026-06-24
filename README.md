@@ -33,13 +33,11 @@ We evaluate Agents-A1 in real-world agentic and research-oriented workflows acro
 <tr>
 <th rowspan="2" align="left">Benchmark</th>
 <th colspan="3" align="center" style="text-align:center;">
-    📏 Comparable (~35B)
+    📏 Comparable Models (~35B)
 </th>
-
 <th colspan="4" align="center" style="text-align:center;">
-    🚀 Frontier (&gt;1T)
+    🚀 Larger-scale Models
 </th>
-
 <th colspan="2" align="center" style="text-align:center;">
     ⭐ Ours
 </th>
