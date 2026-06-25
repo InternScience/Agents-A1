@@ -1,0 +1,8 @@
+absl-py
+langdetect
+nltk
+immutabledict
+spacy
+emoji
+syllapy
+unicodedata2

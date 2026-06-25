@@ -1,0 +1,2 @@
+vllm==0.5.3.post1
+transformers==4.45.0

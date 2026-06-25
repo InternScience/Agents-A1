@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*.log
+.env
+
+# Runtime outputs
+outputs/
+*/outputs/
+*/eval/
+serve_vllm_*.log
+
+# Local caches and downloaded resources
+.cache/
+.nltk_data/
+*/.nltk_data/
+.tiktoken_cache/
+
+# LongBench-v2 is larger than GitHub's normal file limit. Use
+# LongBench/prepare_data.py to download it to ../datasets/data/longbench_v2.
+LongBench/data/
+LongBench/results/
+LongBench/results2/
+LongBench/result*.txt
+
+# Benchmark input data live under ../datasets/data/.
+IFBench/data/
+IFEval/data/

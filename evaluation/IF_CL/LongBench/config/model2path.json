@@ -1,0 +1,15 @@
+{
+    "GLM-4-9B-Chat": "THUDM/glm-4-9b-chat",
+    "Llama-3.1-8B-Instruct": "meta-llama/Llama-3.1-8B-Instruct", 
+    "Llama-3.1-70B-Instruct": "meta-llama/Llama-3.1-70B-Instruct",
+    "Llama-3.3-70B-Instruct": "meta-llama/Llama-3.3-70B-Instruct",
+    "Llama-3.1-Nemotron-70B-Instruct": "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
+    "Qwen2.5-7B-Instruct": "Qwen/Qwen2.5-7B-Instruct",
+    "Qwen2.5-72B-Instruct": "Qwen/Qwen2.5-72B-Instruct",
+    "Qwen3.5-35B-A3B": "Qwen3.5-35B-A3B",
+    "Qwen/Qwen3.5-35B-A3B": "Qwen3.5-35B-A3B",
+    "Mistral-Large-Instruct-2407": "mistralai/Mistral-Large-Instruct-2407",
+    "Mistral-Large-Instruct-2411": "mistralai/Mistral-Large-Instruct-2411",
+    "c4ai-command-r-plus-08-2024": "CohereForAI/c4ai-command-r-plus-08-2024",
+    "glm-4-plus": "THUDM/glm-4-9b-chat"
+}

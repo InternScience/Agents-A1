@@ -1,0 +1,14 @@
+absl-py
+datasets
+emoji
+immutabledict
+langdetect
+nltk
+openai
+pydantic
+pydantic-settings
+syllapy
+tqdm
+transformers
+unicodedata2
+vllm
