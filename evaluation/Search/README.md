@@ -135,7 +135,7 @@ See [judger/README.md](./judger/README.md) for more details.
 
 `run_inference.py` is the orchestrator: loads datasets, fans out questions to a `ThreadPoolExecutor`, each thread runs a `MultiTurnReactAgent` instance.
 
-The agent runs a multi-turn loop: call LLM -> parse tool calls -> execute tool -> append result -> repeat. Final answers are extracted from `<answer></answer>` tags. 150-minute timeout per question, max 100 LLM calls (configurable via `MAX_LLM_CALL_PER_RUN`).
+The agent runs a multi-turn loop: call LLM -> parse tool calls -> execute tool -> append result -> repeat. Final answers are extracted from `<answer></answer>` tags. 150-minute timeout per question, max 300 LLM calls (configurable via `MAX_LLM_CALL_PER_RUN`).
 
 ### Tools
 
