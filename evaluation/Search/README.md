@@ -10,6 +10,8 @@ Here contains a deep-research agent evaluation framework. It runs ReAct (Reasoni
 - **SEAL** — Search-augmented evaluation
 - **Xbench** — Cross-lingual deep search
 
+For BrowseComp, we use the discard-all strategy when maximum tool calls (300) is reached or context limit is exceeded. We report the result on BrowseComp using retry@5, which means that given a question, if the model doesn't find the answer in a round, it will discard previous context and start a new round, at most 5 retries are allowed.
+
 Please follow the [dataset preparation guide](./datasets/README.md) to prepare the evaluation datasets.
 
 ## Quick Start
