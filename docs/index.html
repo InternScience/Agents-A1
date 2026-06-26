@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agents-A1 | 35B MoE Agentic Model</title>
+  <meta name="description" content="Agents-A1 is a 35B Mixture-of-Experts agentic model for long-horizon search, engineering, scientific research, instruction following, and tool use." />
+  <meta property="og:title" content="Agents-A1 | 35B MoE Agentic Model" />
+  <meta property="og:description" content="A scalable general-purpose agentic model with strong long-horizon search, tool use, scientific reasoning, and instruction following." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="./assets/logo.png" />
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --ink: #0f172a;
+      --muted: #475569;
+      --soft: #e2e8f0;
+      --panel: #ffffff;
+      --teal: #0f9f9a;
+      --blue: #2563eb;
+      --violet: #a21caf;
+      --amber: #b45309;
+      --green: #15803d;
+      --maxw: 1160px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #eef6f8 0, #f8fafc 360px, var(--bg) 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    ::selection {
+      color: #fff;
+      background: #0f172a;
+    }
+    a { color: inherit; }
+    code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.32);
+      background: rgba(248, 250, 252, 0.9);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+    }
+    .nav {
+      width: min(var(--maxw), calc(100% - 32px));
+      min-height: 62px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-weight: 800;
+    }
+    .brand img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      display: block;
+    }
+    .brand span {
+      color: #0f172a;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+    .nav-links a {
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid #1d4ed8;
+      border-radius: 8px;
+      background: #1d4ed8;
+      color: #fff !important;
+    }
+
+    .hero {
+      width: 100%;
+      min-height: min(560px, calc(100vh - 120px));
+      margin: 0;
+      padding: 34px max(16px, calc((100vw - var(--maxw)) / 2)) 18px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 56px;
+      right: max(16px, calc((100vw - var(--maxw)) / 2 - 18px));
+      width: min(850px, 62vw);
+      aspect-ratio: 1144 / 564;
+      background: url("./assets/a1_benchmarks_altair_grid.svg") center / contain no-repeat;
+      transform: rotate(-2.4deg) translateY(8px);
+      opacity: 0.66;
+      filter: drop-shadow(0 34px 55px rgba(15, 23, 42, 0.18));
+      z-index: -2;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, #f8fafc 0%, rgba(248, 250, 252, 0.98) 38%, rgba(248, 250, 252, 0.72) 66%, rgba(248, 250, 252, 0.92) 100%),
+        linear-gradient(180deg, rgba(14, 165, 163, 0.12), rgba(37, 99, 235, 0.06) 48%, rgba(248, 250, 252, 0.2));
+      z-index: -1;
+    }
+    .hero-content {
+      width: min(800px, 100%);
+      position: relative;
+    }
+    .hero-mark {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .hero-mark img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      filter: drop-shadow(0 16px 22px rgba(15, 23, 42, 0.14));
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: #0f766e;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 5px rgba(15, 159, 154, 0.12);
+    }
+    h1 {
+      max-width: 690px;
+      margin: 0;
+      font-size: 80px;
+      line-height: 0.95;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+    .hero-copy {
+      max-width: 700px;
+      margin: 14px 0 0;
+      color: #1e293b;
+      font-size: 21px;
+      line-height: 1.55;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 15px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #0f172a;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+    .btn.primary {
+      color: #fff;
+      border-color: #0f172a;
+      background: #0f172a;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: #64748b;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+    .hero-meta {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 690px;
+    }
+    .metric {
+      min-height: 84px;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+      padding: 12px;
+    }
+    .metric b {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .domain-strip {
+      max-width: 780px;
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+    .domain-strip span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid rgba(100, 116, 139, 0.24);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.68);
+      color: #334155;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .band {
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .band.alt { background: #f8fafc; }
+    .inner {
+      width: min(var(--maxw), calc(100% - 32px));
+      margin: 0 auto;
+      padding: 38px 0;
+    }
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 16px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: 38px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    .section-head p {
+      margin: 9px 0 0;
+      color: #475569;
+      font-size: 17px;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .feature {
+      min-height: 144px;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      background: #fff;
+      padding: 15px;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+    .feature:hover {
+      transform: translateY(-2px);
+      border-color: #94a3b8;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+    }
+    .feature .num {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: #fff;
+      background: #0f172a;
+      font-weight: 900;
+      font-size: 13px;
+    }
+    .feature h3 {
+      margin: 14px 0 6px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .feature p {
+      margin: 0;
+      color: #475569;
+      font-size: 14px;
+    }
+    .train-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .train {
+      min-height: 156px;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      background: #fff;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+    .train:hover {
+      transform: translateY(-2px);
+      border-color: #94a3b8;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+    }
+    .train::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 5px;
+      background: linear-gradient(90deg, var(--teal), var(--blue), var(--violet));
+    }
+    .train span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .train h3 {
+      margin: 12px 0 6px;
+      font-size: 21px;
+      line-height: 1.2;
+    }
+    .train p {
+      margin: 0;
+      color: #475569;
+    }
+    .bench-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+    .rank-list {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .rank {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+    .rank:hover {
+      transform: translateY(-1px);
+      border-color: #94a3b8;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    }
+    .rank strong {
+      display: block;
+      font-size: 15px;
+    }
+    .rank span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .rank b {
+      color: var(--blue);
+      font-size: 24px;
+      font-variant-numeric: tabular-nums;
+    }
+    .chart-panel {
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+      overflow: hidden;
+    }
+    .chart-head {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 11px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+    .chart-head strong {
+      display: block;
+      font-size: 18px;
+    }
+    .chart-head span {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .model-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px 12px;
+      align-items: center;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .legend-item img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      display: block;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      background: #e2e8f0;
+    }
+    .mini-chart {
+      --axis-width: 24px;
+      --axis-gap: 6px;
+      --plot-pad-x: 6px;
+      --plot-border-left: 1px;
+      min-width: 0;
+      min-height: 174px;
+      display: grid;
+      grid-template-rows: 30px 1fr 22px;
+      background: #fff;
+      padding: 8px 9px 7px;
+      position: relative;
+      overflow: visible;
+      transition: background 0.16s ease, box-shadow 0.16s ease;
+    }
+    .mini-chart:hover {
+      background: #fbfdff;
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.12);
+    }
+    .mini-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.15;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .mini-plot {
+      min-height: 114px;
+      display: grid;
+      grid-template-columns: var(--axis-width) minmax(0, 1fr);
+      gap: var(--axis-gap);
+      padding-top: 4px;
+      position: relative;
+      z-index: 1;
+    }
+    .mini-y-axis {
+      height: 104px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-right: 2px;
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .mini-bars {
+      height: 104px;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      align-items: end;
+      justify-items: center;
+      gap: 8px;
+      padding: 0 var(--plot-pad-x);
+      border-left: var(--plot-border-left) solid #cbd5e1;
+      border-bottom: 1px solid #cbd5e1;
+      background:
+        linear-gradient(to top, rgba(148, 163, 184, 0.22) 1px, transparent 1px) 0 0 / 100% 20%,
+        linear-gradient(to right, rgba(148, 163, 184, 0.10) 1px, transparent 1px) 0 0 / 20% 100%;
+      position: relative;
+    }
+    .mini-bar-wrap {
+      width: 100%;
+      max-width: 26px;
+      min-width: 13px;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      justify-self: center;
+      position: relative;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .mini-bar {
+      width: 100%;
+      height: calc(var(--score) * 1%);
+      min-height: 2px;
+      border-radius: 3px 3px 0 0;
+      background: var(--bar-color);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05), 0 6px 12px rgba(15, 23, 42, 0.10);
+      transform: scaleY(0);
+      transform-origin: bottom center;
+      transition: filter 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .mini-score {
+      position: absolute;
+      left: 50%;
+      bottom: calc(var(--score) * 1% + 4px);
+      color: #687591;
+      font-size: 10px;
+      font-weight: 850;
+      line-height: 1;
+      transform: translateX(-50%);
+      opacity: 0;
+      font-variant-numeric: tabular-nums;
+      transition: opacity 0.22s ease, color 0.18s ease, transform 0.18s ease;
+      pointer-events: none;
+    }
+    .mini-chart.is-visible .mini-bar {
+      animation: columnRise 900ms cubic-bezier(.2, .8, .2, 1) forwards;
+      animation-delay: var(--delay, 0ms);
+    }
+    .mini-chart.is-visible .mini-score {
+      opacity: 1;
+      transition-delay: calc(var(--delay, 0ms) + 360ms);
+    }
+    .mini-bar-wrap:hover .mini-bar,
+    .mini-bar-wrap:focus-visible .mini-bar {
+      filter: saturate(1.18) brightness(1.04);
+      transform: scaleY(1) translateY(-3px);
+      box-shadow: 0 12px 22px rgba(15, 23, 42, 0.18);
+    }
+    .mini-bar-wrap:hover .mini-score,
+    .mini-bar-wrap:focus-visible .mini-score {
+      color: #0f172a;
+      transform: translate(-50%, -4px);
+    }
+    .mini-bar-wrap.is-ours .mini-bar {
+      background:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.28) 0 2px, transparent 2px 8px),
+        var(--bar-color);
+      box-shadow: 0 10px 22px rgba(77, 107, 254, 0.24);
+    }
+    .mini-bar-wrap.is-ours .mini-score {
+      color: #4d6bfe;
+    }
+    .mini-tooltip {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      min-width: 112px;
+      padding: 7px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.94);
+      color: #fff;
+      font-size: 11px;
+      line-height: 1.25;
+      text-align: center;
+      transform: translate(-50%, 6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      z-index: 3;
+    }
+    .mini-tooltip b {
+      display: block;
+      margin-top: 2px;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+    .mini-bar-wrap:hover .mini-tooltip,
+    .mini-bar-wrap:focus-visible .mini-tooltip {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    .mini-logo-row {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      display: grid;
+      gap: 8px;
+      align-items: center;
+      margin-left: calc(var(--axis-width) + var(--axis-gap));
+      padding-left: calc(var(--plot-pad-x) + var(--plot-border-left));
+      padding-right: var(--plot-pad-x);
+      position: relative;
+      z-index: 1;
+    }
+    .mini-logo {
+      width: 18px;
+      height: 18px;
+      justify-self: center;
+      object-fit: contain;
+      display: block;
+      opacity: 0.74;
+    }
+    .mini-logo.is-ours {
+      opacity: 1;
+      filter: drop-shadow(0 4px 6px rgba(77, 107, 254, 0.22));
+    }
+    .chart-caption {
+      margin: 0;
+      padding: 8px 12px 10px;
+      border-top: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 13px;
+      background: #f8fafc;
+    }
+    .usage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+    }
+    .code-card {
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      overflow: hidden;
+    }
+    .code-card h3 {
+      margin: 0;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.16);
+      background: #111c31;
+      font-size: 15px;
+    }
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .link-card {
+      min-height: 128px;
+      display: block;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      background: #fff;
+      padding: 18px;
+      text-decoration: none;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+    .link-card:hover {
+      transform: translateY(-1px);
+      border-color: #94a3b8;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+    }
+    .link-card strong {
+      display: block;
+      color: #0f172a;
+      font-size: 18px;
+    }
+    .link-card span {
+      display: block;
+      margin-top: 8px;
+      color: #475569;
+      font-size: 14px;
+    }
+    .footer {
+      padding: 22px 0 30px;
+      color: #64748b;
+      font-size: 13px;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    @keyframes columnRise {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+      .mini-chart .mini-bar,
+      .mini-chart.is-visible .mini-bar {
+        animation: none !important;
+        transform: scaleY(1);
+      }
+    }
+    @media (max-width: 1020px) {
+      .bench-layout {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+        padding-bottom: 28px;
+      }
+      .hero::before {
+        top: 250px;
+        right: -170px;
+        width: min(840px, 105vw);
+        opacity: 0.34;
+      }
+      .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .rank-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .usage { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .nav {
+        min-height: 62px;
+      }
+      .brand img {
+        width: 40px;
+        height: 40px;
+      }
+      .brand span { font-size: 17px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .hero {
+        width: 100%;
+        padding: 34px 12px 26px;
+      }
+      .hero::before {
+        top: auto;
+        right: -240px;
+        bottom: 18px;
+        width: 720px;
+        opacity: 0.2;
+      }
+      .hero::after {
+        background:
+          linear-gradient(180deg, #f8fafc 0%, rgba(248, 250, 252, 0.96) 54%, rgba(248, 250, 252, 0.88) 100%);
+      }
+      h1 { font-size: 64px; }
+      .hero-copy { font-size: 17px; }
+      .hero-mark img {
+        width: 58px;
+        height: 58px;
+      }
+      .actions .btn {
+        flex: 1 1 100%;
+      }
+      .hero-meta,
+      .train-grid,
+      .link-grid {
+        grid-template-columns: 1fr;
+      }
+      .feature-grid { grid-template-columns: 1fr; }
+      .inner {
+        width: min(100% - 24px, var(--maxw));
+        padding: 34px 0;
+      }
+      .rank {
+        grid-template-columns: 1fr;
+      }
+      .rank-list { grid-template-columns: 1fr; }
+      .rank b { font-size: 22px; }
+      .section-head h2 { font-size: 34px; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .chart-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .mini-chart {
+        min-height: 190px;
+      }
+      .mini-plot {
+        height: 118px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Agents-A1 home">
+        <img src="./assets/logo.png" alt="" />
+        <span>Agents-A1</span>
+      </a>
+      <div class="nav-links">
+        <a href="#capabilities">Capabilities</a>
+        <a href="#benchmarks">Benchmarks</a>
+        <a href="#training">Training</a>
+        <a href="#usage">Usage</a>
+        <a class="nav-cta" href="https://huggingface.co/InternScience/Agents-A1" target="_blank" rel="noopener noreferrer">Model</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <div class="hero-mark">
+          <img src="./assets/logo.png" alt="" />
+          <p class="eyebrow">Open agentic foundation model</p>
+        </div>
+        <h1 id="hero-title">Agents-A1</h1>
+        <p class="hero-copy">
+          A 35B Mixture-of-Experts agentic model built to scale heterogeneous agent abilities
+          across long-horizon search, engineering, scientific research, instruction following,
+          and tool calling.
+        </p>
+        <div class="actions" aria-label="Project links">
+          <a class="btn primary" href="https://huggingface.co/InternScience/Agents-A1" target="_blank" rel="noopener noreferrer">Hugging Face Model</a>
+          <a class="btn" href="https://github.com/InternScience/Agents-A1" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+          <a class="btn" href="#benchmarks">View Benchmarks</a>
+        </div>
+        <div class="hero-meta" aria-label="Key model facts">
+          <div class="metric">
+            <b>35B</b>
+            <span>MoE agentic model</span>
+          </div>
+          <div class="metric">
+            <b>262K</b>
+            <span>served context length</span>
+          </div>
+          <div class="metric">
+            <b>6</b>
+            <span>evaluation directions</span>
+          </div>
+        </div>
+      <div class="domain-strip" aria-label="Core domains">
+          <span>Long-horizon search</span>
+          <span>Engineering</span>
+          <span>Scientific research</span>
+          <span>Instruction following</span>
+          <span>Tool calling</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="capabilities">
+      <div class="inner">
+        <div class="section-head">
+          <h2>Designed for real agent workflows.</h2>
+          <p>
+            Agents-A1 targets tasks where the model must plan, use tools, inspect intermediate
+            state, and keep constraints intact across long contexts.
+          </p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature">
+            <span class="num">01</span>
+            <h3>Agentic reasoning</h3>
+            <p>Decomposes complex goals into executable sub-steps, plans ahead, and adapts based on intermediate observations.</p>
+          </article>
+          <article class="feature">
+            <span class="num">02</span>
+            <h3>Tool use</h3>
+            <p>Supports function calling and external tools including APIs, code interpreters, search engines, and task environments.</p>
+          </article>
+          <article class="feature">
+            <span class="num">03</span>
+            <h3>Long context</h3>
+            <p>Handles extended conversations and documents while preserving coherence, recall, and multi-step state.</p>
+          </article>
+          <article class="feature">
+            <span class="num">04</span>
+            <h3>Instruction following</h3>
+            <p>Tracks detailed constraints across diverse domains, from scientific research prompts to structured tool workflows.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="benchmarks">
+      <div class="inner">
+        <div class="section-head">
+          <h2>Broad agentic benchmark coverage.</h2>
+          <p>
+            Agents-A1 is evaluated across long-horizon search, engineering tasks, scientific
+            research, instruction following, general agentic tasks, and scientific agentic tasks.
+          </p>
+        </div>
+        <div class="bench-layout">
+          <div class="chart-panel" aria-label="Animated benchmark bar chart">
+            <div class="chart-head">
+              <div>
+                <strong>Performance Matrix</strong>
+                <span>Agents-A1 versus leading agentic systems</span>
+              </div>
+              <div class="model-legend" data-model-legend aria-label="Model legend"></div>
+            </div>
+            <div class="chart-grid" data-chart aria-live="polite"></div>
+            <p class="chart-caption">
+              Hover over any bar to inspect the model and score. Blue bars mark Agents-A1.
+            </p>
+          </div>
+          <div class="rank-list" aria-label="Selected benchmark results">
+            <div class="rank">
+              <div><strong>Seal-0</strong><span>Long-horizon search, overall SOTA result</span></div>
+              <b>56.36</b>
+            </div>
+            <div class="rank">
+              <div><strong>BrowseComp</strong><span>Best among comparable 35B-class models</span></div>
+              <b>75.51</b>
+            </div>
+            <div class="rank">
+              <div><strong>SciCode</strong><span>Engineering tasks, best among comparable models</span></div>
+              <b>44.33</b>
+            </div>
+            <div class="rank">
+              <div><strong>FrontierScience-Research</strong><span>Scientific research, overall SOTA result</span></div>
+              <b>40.0</b>
+            </div>
+            <div class="rank">
+              <div><strong>IFBench</strong><span>Instruction following, overall SOTA result</span></div>
+              <b>80.61</b>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band alt" id="training">
+      <div class="inner">
+        <div class="section-head">
+          <h2>Three-stage agent training.</h2>
+          <p>
+            The model is trained with a domain-grounded knowledge-action graph that turns
+            agent process traces into trainable targets.
+          </p>
+        </div>
+        <div class="train-grid">
+          <article class="train">
+            <span>Stage 1</span>
+            <h3>Full-domain supervised fine-tuning</h3>
+            <p>Aligns the base model with broad agentic behaviors across search, engineering, research, tools, and instructions.</p>
+          </article>
+          <article class="train">
+            <span>Stage 2</span>
+            <h3>Domain-level teacher models</h3>
+            <p>Captures specialized expertise for each domain, giving the final model stronger and more varied supervision.</p>
+          </article>
+          <article class="train">
+            <span>Stage 3</span>
+            <h3>Multi-teacher on-policy distillation</h3>
+            <p>Transfers expertise across heterogeneous domains with optimization designed for efficient knowledge transfer.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band alt" id="usage">
+      <div class="inner">
+        <div class="section-head">
+          <h2>Serve with standard LLM runtimes.</h2>
+          <p>
+            Agents-A1 can be served through SGLang or vLLM with OpenAI-compatible endpoints
+            at <code>http://localhost:8000/v1</code>.
+          </p>
+        </div>
+        <div class="usage">
+          <article class="code-card">
+            <h3>SGLang</h3>
+            <pre><code>python -m sglang.launch_server \
+  --model-path InternScience/Agents-A1 \
+  --port 8000 \
+  --tp-size 1 \
+  --mem-fraction-static 0.8 \
+  --context-length 262144 \
+  --reasoning-parser qwen3</code></pre>
+          </article>
+          <article class="code-card">
+            <h3>vLLM</h3>
+            <pre><code>vllm serve InternScience/Agents-A1 \
+  --port 8000 \
+  --tensor-parallel-size 1 \
+  --max-model-len 262144 \
+  --reasoning-parser qwen3</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="links">
+      <div class="inner">
+        <div class="section-head">
+          <h2>Model, code, and evaluation.</h2>
+          <p>
+            Use the model card for release details, the repository for scripts, and the open
+            evaluation framework for reproducible agent capability testing.
+          </p>
+        </div>
+        <div class="link-grid">
+          <a class="link-card" href="https://huggingface.co/InternScience/Agents-A1" target="_blank" rel="noopener noreferrer">
+            <strong>Hugging Face</strong>
+            <span>Model weights and model card for InternScience/Agents-A1.</span>
+          </a>
+          <a class="link-card" href="https://github.com/InternScience/Agents-A1" target="_blank" rel="noopener noreferrer">
+            <strong>GitHub</strong>
+            <span>Source repository, launch scripts, benchmark assets, and documentation.</span>
+          </a>
+          <a class="link-card" href="https://github.com/InternScience/Agents-A1/tree/main/evaluation" target="_blank" rel="noopener noreferrer">
+            <strong>Evaluation</strong>
+            <span>Open framework for tool use, multi-step reasoning, and agent-oriented tasks.</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Agents-A1 is released by InternScience. Star the repository, try the model, and report issues through GitHub.
+  </footer>
+  <script>
+    (() => {
+      const models = [
+        { name: "Agents-A1", short: "Agents-A1", color: "#4d6bfe", logo: "./assets/model_logos/ours.svg", ours: true },
+        { name: "Qwen3.6-35B-A3B", short: "Qwen", color: "#d3d7df", logo: "./assets/model_logos/qwen.svg" },
+        { name: "Step-3.5-Flash", short: "Step", color: "#d9dde5", logo: "./assets/model_logos/stepfun.svg" },
+        { name: "Kimi-K2.6", short: "Kimi", color: "#e5e7eb", logo: "./assets/model_logos/kimi.png" },
+        { name: "DeepSeek-V4-pro(Max)", short: "DeepSeek", color: "#edf0f4", logo: "./assets/model_logos/deepseek.svg" },
+        { name: "gpt-5.5(xhigh)", short: "GPT-5.5", color: "#f3f5f8", logo: "./assets/model_logos/openai.svg" }
+      ];
+      const benchmarkPanels = [
+        { name: "HLE", values: [47.6, 36.2, 23.1, 54.0, 48.2, 52.2] },
+        { name: "HiPhO", values: [46.4, 37.7, 38.3, 41.1, 38.7, 43.3] },
+        { name: "FrontierScience-Olympiad", values: [79.0, 60.3, 61.0, 73.0, 76.0, 78.0] },
+        { name: "FrontierScience-Research", values: [40.0, 2.9, 6.7, 17.9, 13.3, 26.7] },
+        { name: "BrowseComp", values: [75.5, 67.9, 69.0, 83.2, 83.4, 84.4] },
+        { name: "XBench", values: [86.0, 71.0, 56.3, 90.0, 90.0, 84.0] },
+        { name: "SEAL-0", values: [56.4, 38.7, 36.9, 50.5, 55.0, 42.3] },
+        { name: "GAIA", values: [96.0, 78.6, 84.5, 80.6, 98.1, 87.4] },
+        { name: "IFBench", values: [80.6, 64.4, 64.6, 71.8, 73.5, 75.9] },
+        { name: "IFEval", values: [94.8, 91.3, 93.5, 94.5, 93.3, 93.3] },
+        { name: "SciCode", values: [44.3, 35.8, 40.4, 53.5, 50.0, 56.1] },
+        { name: "MolBench-Bind", values: [56.8, 48.7, 46.0, 21.6, 37.8, 62.2] }
+      ];
+      const chart = document.querySelector("[data-chart]");
+      const legend = document.querySelector("[data-model-legend]");
+      let chartVisible = false;
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        }[char]));
+      }
+
+      function renderChart() {
+        if (!chart) return;
+        if (legend) {
+          legend.innerHTML = models.map((model) => `
+            <span class="legend-item">
+              <img src="${model.logo}" alt="" />
+              <span>${escapeHtml(model.short)}</span>
+            </span>
+          `).join("");
+        }
+        chart.innerHTML = benchmarkPanels.map((panel, panelIndex) => {
+          const bars = panel.values.map((score, modelIndex) => {
+            const model = models[modelIndex];
+            const display = score.toFixed(1);
+            const delay = panelIndex * 45 + modelIndex * 55;
+            return `
+              <button class="mini-bar-wrap ${model.ours ? "is-ours" : ""}" type="button"
+                style="--score:${score};--bar-color:${model.color};--delay:${delay}ms;"
+                aria-label="${escapeHtml(panel.name)} ${escapeHtml(model.name)} score ${display}">
+                <span class="mini-score">${display}</span>
+                <span class="mini-bar"></span>
+                <span class="mini-tooltip">${escapeHtml(model.name)}<b>${display}</b></span>
+              </button>
+            `;
+          }).join("");
+          const logoRow = models.map((model) => (
+            `<img class="mini-logo ${model.ours ? "is-ours" : ""}" src="${model.logo}" alt="" title="${escapeHtml(model.name)}" />`
+          )).join("");
+          return `
+            <div class="mini-chart" aria-label="${escapeHtml(panel.name)} benchmark panel">
+              <div class="mini-title">${escapeHtml(panel.name)}</div>
+              <div class="mini-plot">
+                <div class="mini-y-axis" aria-hidden="true"><span>100</span><span>80</span><span>60</span><span>40</span><span>20</span><span>0</span></div>
+                <div class="mini-bars">${bars}</div>
+              </div>
+              <div class="mini-logo-row" aria-hidden="true">${logoRow}</div>
+            </div>
+          `;
+        }).join("");
+        if (chartVisible || !("IntersectionObserver" in window)) {
+          startChart();
+        }
+      }
+
+      function startChart() {
+        if (!chart) return;
+        requestAnimationFrame(() => {
+          chart.querySelectorAll(".mini-chart").forEach((item) => item.classList.add("is-visible"));
+        });
+      }
+
+      renderChart();
+
+      const panel = document.querySelector(".chart-panel");
+      if (panel && "IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          chartVisible = true;
+          startChart();
+          observer.disconnect();
+        }, { threshold: 0.28 });
+        observer.observe(panel);
+      } else {
+        chartVisible = true;
+        startChart();
+      }
+    })();
+  </script>
+</body>
+</html>
