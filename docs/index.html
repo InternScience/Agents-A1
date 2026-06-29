@@ -57,30 +57,13 @@
       margin: 0 auto;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      font-weight: 800;
-    }
-    .brand img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      display: block;
-    }
-    .brand span {
-      color: #0f172a;
-      font-size: 18px;
-      line-height: 1;
+      justify-content: flex-start;
     }
     .nav-links {
       display: flex;
       align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
       gap: 18px;
       color: var(--muted);
       font-size: 14px;
@@ -110,6 +93,7 @@
       padding: 34px max(16px, calc((100vw - var(--maxw)) / 2)) 18px;
       display: flex;
       align-items: center;
+      justify-content: center;
       position: relative;
       isolation: isolate;
       overflow: hidden;
@@ -139,10 +123,15 @@
     .hero-content {
       width: min(800px, 100%);
       position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
     .hero-mark {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 14px;
       margin-bottom: 8px;
     }
@@ -172,6 +161,7 @@
       box-shadow: 0 0 0 5px rgba(15, 159, 154, 0.12);
     }
     h1 {
+      width: 100%;
       max-width: 690px;
       margin: 0;
       font-size: 80px;
@@ -180,6 +170,7 @@
       font-weight: 900;
     }
     .hero-copy {
+      width: 100%;
       max-width: 700px;
       margin: 14px 0 0;
       color: #1e293b;
@@ -189,6 +180,7 @@
     .actions {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
       margin-top: 18px;
     }
@@ -218,11 +210,11 @@
       box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
     }
     .hero-meta {
+      width: min(690px, 100%);
       margin-top: 18px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
-      max-width: 690px;
     }
     .metric {
       min-height: 84px;
@@ -247,10 +239,12 @@
       font-weight: 700;
     }
     .domain-strip {
+      width: min(780px, 100%);
       max-width: 780px;
       margin-top: 12px;
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 9px;
     }
     .domain-strip span {
@@ -769,14 +763,19 @@
     }
     @media (max-width: 760px) {
       .nav {
-        min-height: 62px;
+        width: min(100% - 20px, var(--maxw));
+        min-height: 56px;
       }
-      .brand img {
-        width: 40px;
-        height: 40px;
+      .nav-links {
+        justify-content: flex-start;
+        gap: 8px 12px;
+        padding: 10px 0;
+        font-size: 13px;
       }
-      .brand span { font-size: 17px; }
-      .nav-links a:not(.nav-cta) { display: none; }
+      .nav-cta {
+        min-height: 32px;
+        padding: 0 10px;
+      }
       .hero {
         width: 100%;
         padding: 34px 12px 26px;
@@ -834,15 +833,13 @@
 <body>
   <header class="site-header">
     <nav class="nav" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="Agents-A1 home">
-        <span>Agents-A1</span>
-      </a>
       <div class="nav-links">
+        <a class="nav-cta" href="https://huggingface.co/InternScience/Agents-A1" target="_blank" rel="noopener noreferrer">Model</a>
         <a href="#capabilities">Capabilities</a>
         <a href="#benchmarks">Benchmarks</a>
         <a href="#training">Training</a>
         <a href="#usage">Usage</a>
-        <a class="nav-cta" href="https://huggingface.co/InternScience/Agents-A1" target="_blank" rel="noopener noreferrer">Model</a>
+        <a href="#related-projects">Related Projects</a>
       </div>
     </nav>
   </header>
@@ -891,7 +888,7 @@
     <section class="band" id="capabilities">
       <div class="inner">
         <div class="section-head">
-          <h2>Designed for real agent workflows.</h2>
+          <h2>Designed for real agent workflows</h2>
           <p>
             Agents-A1 targets tasks where the model must plan, use tools, inspect intermediate
             state, and keep constraints intact across long contexts.
@@ -925,7 +922,7 @@
     <section class="band" id="benchmarks">
       <div class="inner">
         <div class="section-head">
-          <h2>Broad agentic benchmark coverage.</h2>
+          <h2>Broad agentic benchmark coverage</h2>
           <p>
             Agents-A1 is evaluated across long-horizon search, engineering tasks, scientific
             research, instruction following, general agentic tasks, and scientific agentic tasks.
@@ -974,7 +971,7 @@
     <section class="band alt" id="training">
       <div class="inner">
         <div class="section-head">
-          <h2>Three-stage agent training.</h2>
+          <h2>Three-stage agent training</h2>
           <p>
             The model is trained with a domain-grounded knowledge-action graph that turns
             agent process traces into trainable targets.
@@ -1003,7 +1000,7 @@
     <section class="band alt" id="usage">
       <div class="inner">
         <div class="section-head">
-          <h2>Serve with standard LLM runtimes.</h2>
+          <h2>Serve with standard LLM runtimes</h2>
           <p>
             Agents-A1 can be served through SGLang or vLLM with OpenAI-compatible endpoints
             at <code>http://localhost:8000/v1</code>.
@@ -1038,7 +1035,7 @@
     <section class="band" id="links">
       <div class="inner">
         <div class="section-head">
-          <h2>Model, code, and evaluation.</h2>
+          <h2>Model, code, and evaluation</h2>
           <p>
             Use the model card for release details, the repository for scripts, and the open
             evaluation framework for reproducible agent capability testing.
@@ -1056,6 +1053,32 @@
           <a class="link-card" href="https://github.com/InternScience/Agents-A1/tree/main/evaluation" target="_blank" rel="noopener noreferrer">
             <strong>Evaluation</strong>
             <span>Open framework for tool use, multi-step reasoning, and agent-oriented tasks.</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="band alt" id="related-projects">
+      <div class="inner">
+        <div class="section-head">
+          <h2>Related projects from InternScience</h2>
+          <p>
+            Agents-A1 is part of our team's broader work on agent systems, automated
+            machine learning, and long-horizon reasoning.
+          </p>
+        </div>
+        <div class="link-grid">
+          <a class="link-card" href="https://github.com/InternScience/InternAgent" target="_blank" rel="noopener noreferrer">
+            <strong>InternAgent</strong>
+            <span>Agent system research and infrastructure from the InternScience team.</span>
+          </a>
+          <a class="link-card" href="https://github.com/InternScience/MLEvolve" target="_blank" rel="noopener noreferrer">
+            <strong>MLEvolve</strong>
+            <span>Our project for automated machine learning workflows and model evolution.</span>
+          </a>
+          <a class="link-card" href="https://github.com/InternScience/Agents-K1" target="_blank" rel="noopener noreferrer">
+            <strong>Agents-K1</strong>
+            <span>A related team project focused on agent capabilities and reasoning.</span>
           </a>
         </div>
       </div>
