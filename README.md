@@ -428,6 +428,12 @@ Specifically, the model is tested on a set of agent-oriented tasks that require 
 
 For detailed evaluation scripts, task definitions, metrics, and reproduction instructions, please refer to the evaluation codebase.
 
+## Hardware Support
+
+### AMD Radeon GPU
+
+Get ready to run Sage-A1.5 on AMD Radeon GPUs. With ROCm, PyTorch, vLLM, and llama.cpp, developers can easily explore and run frontier Sage-A1.5 models on AMD GPUs. Get started with the [installation guide](./docs/rocm-installation.md).
+
 ## Citation
 
 If you find our work helpful, feel free to give us a cite.
